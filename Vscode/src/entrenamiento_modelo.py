@@ -15,13 +15,13 @@ def generar_datos_y_entrenar():
     ruta_modelo_pkl = '../Modelos/modelo_random_forest.pkl'
     ruta_encoder_pkl = '../Modelos/codificador_equipos.pkl'
 
-
     df = pd.read_csv(ruta_origen)
     
     df['date'] = pd.to_datetime(df['date'])
-    df = df[df['date'].dt.year >= 2000].copy()
+    df = df[df['date'].dt.year >= 1990]
+    df = df[df['tournament'] == 'World Cup']
+    df = df.copy()
 
-    # 1: Gana Local, 2: Gana Visitante, 0: Empate
     def obtener_resultado(row):
         if row['home_score'] > row['away_score']: return 1
         elif row['away_score'] > row['home_score']: return 2
@@ -29,7 +29,6 @@ def generar_datos_y_entrenar():
     
     df['resultado'] = df.apply(obtener_resultado, axis=1)
     
-    # Codificación
     le = LabelEncoder()
     equipos_unicos = pd.concat([df['home_team'], df['away_team']]).unique()
     le.fit(equipos_unicos)
@@ -43,15 +42,13 @@ def generar_datos_y_entrenar():
     X = df[['home_code', 'away_code']]
     y = df['resultado']
     
-    # Split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    print("2. Entrenando el modelo (Random Forest)...")
+    print("Entrenando el modelo...")
     modelo = RandomForestClassifier(n_estimators=100, random_state=42)
     modelo.fit(X_train, y_train)
     
-    # Evaluación
-    print("3. Evaluando precisión...")
+    print("Evaluando precisión...")
     preds_train = modelo.predict(X_train)
     preds_test = modelo.predict(X_test)
     
@@ -60,7 +57,6 @@ def generar_datos_y_entrenar():
     
     print(f"Precisión del modelo (Test): {acc_test:.2%}")
     
-    # Guardar
     os.makedirs(os.path.dirname(ruta_modelo_pkl), exist_ok=True)
     joblib.dump(modelo, ruta_modelo_pkl)
     joblib.dump(le, ruta_encoder_pkl)
@@ -76,7 +72,6 @@ def ver_analisis_grafico(modelo, X_test, y_test):
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
     
-
     cm = confusion_matrix(y_test, y_pred)
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[0],
                 xticklabels=['Empate', 'Local', 'Visitante'],
@@ -89,7 +84,6 @@ def ver_analisis_grafico(modelo, X_test, y_test):
     data_pred = pd.DataFrame({'Resultado': y_pred, 'Tipo': 'Predicción (Modelo)'})
     data_plot = pd.concat([data_real, data_pred])
 
-   
     sns.histplot(data=data_plot, x='Resultado', hue='Tipo', element="step", 
                  stat="count", common_norm=False, ax=axes[1], bins=[-0.5, 0.5, 1.5, 2.5])
     
