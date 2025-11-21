@@ -35,7 +35,6 @@ def generar_datos_y_entrenar():
     
     df['home_code'] = le.transform(df['home_team'])
     df['away_code'] = le.transform(df['away_team'])
-    
     df.to_csv(ruta_csv_modelo, index=False)
     print(f"Datos filtrados guardados en: {ruta_csv_modelo}")
 
@@ -56,11 +55,9 @@ def generar_datos_y_entrenar():
     acc_test = accuracy_score(y_test, preds_test)
     
     print(f"Precisión del modelo (Test): {acc_test:.2%}")
-    
     os.makedirs(os.path.dirname(ruta_modelo_pkl), exist_ok=True)
     joblib.dump(modelo, ruta_modelo_pkl)
     joblib.dump(le, ruta_encoder_pkl)
-    
     print(f" El modelo se guardo en: {ruta_modelo_pkl}!")
     print(f" El encoder se guardo en: {ruta_encoder_pkl}!")
 
@@ -79,7 +76,6 @@ def ver_analisis_grafico(modelo, X_test, y_test):
     axes[0].set_title('Matriz de Confusión (Detalle de errores)')
     axes[0].set_xlabel('Predicción')
     axes[0].set_ylabel('Real')
-
     data_real = pd.DataFrame({'Resultado': y_test, 'Tipo': 'Real (Datos)'})
     data_pred = pd.DataFrame({'Resultado': y_pred, 'Tipo': 'Predicción (Modelo)'})
     data_plot = pd.concat([data_real, data_pred])
@@ -91,5 +87,4 @@ def ver_analisis_grafico(modelo, X_test, y_test):
     axes[1].set_xticklabels(['Empate', 'Local', 'Visitante'])
     axes[1].set_title('Comparación: Real vs Prediccion')
     axes[1].set_ylabel('Cantidad de Partidos')
-    
     plt.tight_layout()
