@@ -28,7 +28,7 @@ def generar_datos_y_entrenar():
     
     df['resultado'] = df.apply(obtener_resultado, axis=1)
     
-    # 3. CODIFICACIÓN
+
     le = LabelEncoder()
     equipos_unicos = pd.concat([df['home_team'], df['away_team']]).unique()
     le.fit(equipos_unicos)
@@ -43,24 +43,24 @@ def generar_datos_y_entrenar():
     X = df[['home_code', 'away_code']]
     y = df['resultado']
     
-    # test training
+  
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
     print("2. Entrenando el modelo (Random Forest)...")
     modelo = RandomForestClassifier(n_estimators=100, random_state=42)
     modelo.fit(X_train, y_train)
-    
-    # Accuaracy
+   
     print("3. Evaluando precisión...")
     y_pred = modelo.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     print(f"Precisión del modelo (Accuracy): {acc:.2%}")
     
-    # Asegurar que la carpeta existe
+ 
     os.makedirs(os.path.dirname(ruta_modelo_pkl), exist_ok=True)
     
     joblib.dump(modelo, ruta_modelo_pkl)
     joblib.dump(le, ruta_encoder_pkl)
     
     print(f" El modelo se guardo en: {ruta_modelo_pkl}!")
+
     print(f" El encoder se guardo en: {ruta_encoder_pkl}!")
